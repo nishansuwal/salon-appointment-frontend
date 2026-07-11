@@ -26,6 +26,10 @@ export default function AdminLayout() {
             Appointments
           </SidebarLink>
 
+          <SidebarLink to="/admin/categories" icon={<Calendar size={18} />}>
+            Categories
+          </SidebarLink>
+
           <SidebarLink to="/admin/services" icon={<Scissors size={18} />}>
             Services
           </SidebarLink>
@@ -38,8 +42,16 @@ export default function AdminLayout() {
             Users
           </SidebarLink>
 
+          <SidebarLink to="/admin/reviews" icon={<Users size={18} />}>
+            Reviews
+          </SidebarLink>
+
           <SidebarLink to="/admin/gallery" icon={<Image size={18} />}>
             Gallery
+          </SidebarLink>
+
+          <SidebarLink to="/admin/faq" icon={<Calendar size={18} />}>
+            FAQs
           </SidebarLink>
 
           <SidebarLink to="/admin/settings" icon={<Settings size={18} />}>

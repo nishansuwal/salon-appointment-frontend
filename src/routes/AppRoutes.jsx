@@ -16,10 +16,15 @@ import Profile from "../pages/user/Profile";
 
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminAppointments from "../pages/admin/Appointments";
+import AdminCategory from "../pages/admin/AdminCategory";
 import Users from "../pages/admin/Users";
+import Staff from "../pages/admin/Staff";
 import AdminServices from "../pages/admin/Services";
 import ServiceForm from "../pages/admin/ServiceForm";
+import AdminGallery from "../pages/admin/AdminGallery";
+import AdminFaq from "../pages/admin/AdminFaq";
 import Settings from "../pages/admin/Settings";
+import AdminReviews from "../pages/admin/AdminReviews";
 
 import AdminLayout from "../components/layout/AdminLayout";
 
@@ -47,10 +52,15 @@ export default function AppRoutes() {
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/appointments" element={<AdminAppointments />} />
+          <Route path="/admin/categories" element={<AdminCategory />} />
           <Route path="/admin/users" element={<Users />} />
+          <Route path="/admin/staff" element={<Staff />} />
           <Route path="/admin/services" element={<AdminServices />} />
           <Route path="/admin/services/create" element={<ServiceForm />} />
           <Route path="/admin/services/edit/:slug" element={<ServiceForm />} />
+          <Route path="/admin/gallery" element={<AdminGallery />} />
+          <Route path="/admin/faq" element={<AdminFaq />} />
+          <Route path="/admin/reviews" element={<AdminReviews />} />
           <Route path="/admin/settings" element={<Settings />} />
         </Route>
       </Route>
