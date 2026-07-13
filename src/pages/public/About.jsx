@@ -1,6 +1,7 @@
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import { SALON, STAFF } from "../../utils/constants";
+import StaffCard from "../../components/StaffCard";
 
 export default function About() {
   return (
@@ -35,19 +36,8 @@ export default function About() {
         <section className="mt-12">
           <h2 className="text-2xl font-black text-stone-950">Salon staff</h2>
           <div className="mt-5 grid gap-5 md:grid-cols-3">
-            {STAFF.map((member) => (
-              <article key={member.id} className="rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
-                <img src={member.avatar} alt="" className="h-20 w-20 rounded-full object-cover" />
-                <h3 className="mt-4 text-lg font-black text-stone-950">{member.name}</h3>
-                <p className="text-sm text-stone-500">{member.role}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {member.skills.map((skill) => (
-                    <span key={skill} className="rounded-full bg-rose-50 px-3 py-1 text-xs font-bold text-rose-700">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </article>
+            {STAFF.map((staff) => (
+             <StaffCard key={staff.id} staff={staff} />
             ))}
           </div>
         </section>

@@ -80,8 +80,10 @@ export const STAFF = [
   {
     id: "maya",
     name: "Maya Shrestha",
-    role: "Senior Hair Artist",
-    rating: 4.9,
+    position: "Senior Hair Artist",
+    experience: 8,
+    specialization: "Hair Cut, Hair Color, Styling",
+    avg_rating: 4.9,
     avatar:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80",
     skills: ["Cutting", "Color", "Styling"],
@@ -89,8 +91,10 @@ export const STAFF = [
   {
     id: "nisha",
     name: "Nisha Gurung",
-    role: "Stylist & Nail Tech",
-    rating: 4.8,
+    position: "Stylist & Nail Tech",
+    experience: 5,
+    specialization: "Hair Styling, Manicure, Pedicure",
+    avg_rating: 4.8,
     avatar:
       "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=300&q=80",
     skills: ["Styling", "Manicure", "Finishing"],
@@ -98,8 +102,10 @@ export const STAFF = [
   {
     id: "sima",
     name: "Sima Thapa",
-    role: "Skin Therapist",
-    rating: 4.9,
+    position: "Skin Therapist",
+    experience: 6,
+    specialization: "Facials, Skin Treatments",
+    avg_rating: 4.9,
     avatar:
       "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=300&q=80",
     skills: ["Facials", "Nails", "Massage"],
@@ -107,8 +113,10 @@ export const STAFF = [
   {
     id: "tara",
     name: "Tara Rana",
-    role: "Makeup & Skin Specialist",
-    rating: 4.7,
+    position: "Makeup & Skin Specialist",
+    experience: 7,
+    specialization: "Makeup, Facials, Styling",
+    avg_rating: 4.7,
     avatar:
       "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=300&q=80",
     skills: ["Makeup", "Facials", "Styling"],
@@ -116,8 +124,10 @@ export const STAFF = [
   {
     id: "aarav",
     name: "Aarav K.C.",
-    role: "Colorist & Makeup Artist",
-    rating: 4.8,
+    position: "Colorist & Makeup Artist",
+    experience: 5,
+    specialization: "Color, Makeup, Consultation",
+    avg_rating: 4.8,
     avatar:
       "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
     skills: ["Color", "Makeup", "Consultation"],
