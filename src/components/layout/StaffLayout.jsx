@@ -3,94 +3,54 @@ import {
   LayoutDashboard,
   Calendar,
   Users,
-  Scissors,
-  Image,
-  Settings,
-  FolderTree,
-  MessageSquare,
   Star,
 } from "lucide-react";
 
-export default function AdminLayout() {
+export default function StaffLayout() {
   return (
     <div className="h-screen bg-gray-100">
       {/* Fixed Sidebar */}
       <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col bg-[#122d40] text-white">
         {/* Logo */}
         <div className="border-b border-white/10 p-6 text-2xl font-black">
-          Admin Panel
+          Staff Panel
         </div>
 
-        {/* Navigation */}
+        {/* Scrollable Menu */}
         <nav className="flex-1 space-y-2 overflow-y-auto p-4">
           <SidebarLink
-            to="/admin"
+            to="/staff"
             icon={<LayoutDashboard size={18} />}
           >
             Dashboard
           </SidebarLink>
 
           <SidebarLink
-            to="/admin/appointments"
+            to="/staff/appointments"
             icon={<Calendar size={18} />}
           >
             Appointments
           </SidebarLink>
 
           <SidebarLink
-            to="/admin/categories"
-            icon={<FolderTree size={18} />}
+            to="/staff/calendar"
+            icon={<Calendar size={18} />}
           >
-            Categories
+            Calendar
           </SidebarLink>
 
           <SidebarLink
-            to="/admin/services"
-            icon={<Scissors size={18} />}
-          >
-            Services
-          </SidebarLink>
-
-          <SidebarLink
-            to="/admin/staff"
+            to="/staff/profile"
             icon={<Users size={18} />}
           >
-            Staff
+            Profile
           </SidebarLink>
 
           <SidebarLink
-            to="/admin/users"
-            icon={<Users size={18} />}
-          >
-            Users
-          </SidebarLink>
-
-          <SidebarLink
-            to="/admin/reviews"
+            to="/staff/reviews"
             icon={<Star size={18} />}
           >
             Reviews
-          </SidebarLink>
-
-          <SidebarLink
-            to="/admin/gallery"
-            icon={<Image size={18} />}
-          >
-            Gallery
-          </SidebarLink>
-
-          <SidebarLink
-            to="/admin/faq"
-            icon={<MessageSquare size={18} />}
-          >
-            FAQs
-          </SidebarLink>
-
-          <SidebarLink
-            to="/admin/settings"
-            icon={<Settings size={18} />}
-          >
-            Settings
           </SidebarLink>
         </nav>
       </aside>

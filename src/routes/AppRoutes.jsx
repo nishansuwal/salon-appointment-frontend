@@ -14,6 +14,8 @@ import BookAppointment from "../pages/public/BookAppointment";
 import MyAppointments from "../pages/user/MyAppointments";
 import Profile from "../pages/user/Profile";
 
+import AdminLayout from "../components/layout/AdminLayout";
+
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminAppointments from "../pages/admin/Appointments";
 import AdminCategory from "../pages/admin/AdminCategory";
@@ -26,7 +28,14 @@ import AdminFaq from "../pages/admin/AdminFaq";
 import Settings from "../pages/admin/Settings";
 import AdminReviews from "../pages/admin/AdminReviews";
 
-import AdminLayout from "../components/layout/AdminLayout";
+import StaffLayout from "../components/layout/StaffLayout";
+import StaffRoute from "./StaffRoute";
+
+import StaffDashboard from "../pages/staff/StaffDashboard";
+import StaffAppointments from "../pages/staff/StaffAppointments";
+import StaffCalendar from "../pages/staff/StaffCalendar";
+import StaffProfile from "../pages/staff/StaffProfile";
+import StaffReviews from "../pages/staff/StaffReviews";
 
 export default function AppRoutes() {
   return (
@@ -41,11 +50,11 @@ export default function AppRoutes() {
       <Route path="/register" element={<Register />} />
 
       <Route element={<ProtectedRoute />}>
-        {/* <Route element={<UserLayout />}> */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/appointments" element={<MyAppointments />} />
-        <Route path="/profile" element={<Profile />} />
-        {/* </Route> */}
+        <Route element={<UserLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/appointments" element={<MyAppointments />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
       </Route>
 
       <Route element={<AdminRoute />}>
@@ -62,6 +71,16 @@ export default function AppRoutes() {
           <Route path="/admin/faq" element={<AdminFaq />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
           <Route path="/admin/settings" element={<Settings />} />
+        </Route>
+      </Route>
+
+      <Route element={<StaffRoute />}>
+        <Route element={<StaffLayout />}>
+          <Route path="/staff" element={<StaffDashboard />} />
+          <Route path="/staff/appointments" element={<StaffAppointments />} />
+          <Route path="/staff/calendar" element={<StaffCalendar />} />
+          <Route path="/staff/profile" element={<StaffProfile />} />
+          <Route path="/staff/reviews" element={<StaffReviews />} />
         </Route>
       </Route>
 
