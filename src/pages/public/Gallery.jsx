@@ -7,7 +7,7 @@ export default function Gallery() {
   const [activeImage, setActiveImage] = useState(null);
 
   return (
-    <div className="min-h-screen bg-white px-6 py-12">
+    <div className="min-h-screen bg-white px-6">
       <Navbar />
       <h1 className="mb-10 text-center text-4xl font-black">
         Our Gallery
