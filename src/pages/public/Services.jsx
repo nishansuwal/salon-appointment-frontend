@@ -6,11 +6,23 @@ import { SERVICE_CATEGORIES, SERVICES, STAFF } from "../../utils/constants";
 import ServiceCard from "../../components/ServiceCard";
 import { Filter, X } from "lucide-react";
 
+import { useDispatch, useSelector } from "react-redux";
+import { fetchRecords as fetchService } from "../../store/apps/admin/adminServices";
+
 export default function Services() {
   const [category, setCategory] = useState("All");
   const [minPrice, setMinPrice] = useState(1);
   const [maxPrice, setMaxPrice] = useState(null);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchService({}));
+  }, [dispatch]);
+
+  const serviceStore = useSelector((state) => state.services);
+  console.log(serviceStore, "serviceStore");
 
   const filtered =
     category === "All"
@@ -122,7 +134,8 @@ export default function Services() {
           <div>
             {/* Results Count */}
             <p className="mb-4 text-sm text-stone-500">
-              Showing {priceFiltered.length} service{priceFiltered.length !== 1 ? "s" : ""}
+              Showing {priceFiltered.length} service
+              {priceFiltered.length !== 1 ? "s" : ""}
             </p>
 
             {priceFiltered.length === 0 ? (
@@ -219,7 +232,9 @@ function FilterContent({
 
         <div className="flex gap-3">
           <div className="flex-1">
-            <label className="text-xs font-medium text-stone-500">Min ($)</label>
+            <label className="text-xs font-medium text-stone-500">
+              Min ($)
+            </label>
             <input
               type="number"
               placeholder="0"
@@ -234,7 +249,9 @@ function FilterContent({
           </div>
 
           <div className="flex-1">
-            <label className="text-xs font-medium text-stone-500">Max ($)</label>
+            <label className="text-xs font-medium text-stone-500">
+              Max ($)
+            </label>
             <input
               type="number"
               placeholder="Any"

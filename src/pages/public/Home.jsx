@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Star,
@@ -15,6 +16,10 @@ import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import FAQ from "../../components/FAQ";
 import StaffCard from "../../components/StaffCard";
+
+import { fetchActiveServices } from "../../store/apps/user/userServices";
+import { useDispatch, useSelector } from "react-redux";
+
 import {
   SALON,
   SERVICES,
@@ -24,6 +29,14 @@ import {
 import ServiceCard from "../../components/ServiceCard";
 
 export default function Home() {
+  const dispatch = useDispatch();
+  const serviceStore = useSelector((state) => state.userServices);
+  console.log(serviceStore);
+
+  useEffect(() => {
+    dispatch(fetchActiveServices());
+  }, [dispatch]);
+
   // Sample gallery images
   const galleryImages = [
     "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80",
