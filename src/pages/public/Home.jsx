@@ -310,7 +310,7 @@ export default function Home() {
             </h2>
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {testimonials.map((img, index) => (
+            {galleryImages.map((img, index) => (
               <div
                 key={index}
                 className={`overflow-hidden rounded-lg bg-stone-200 ${
