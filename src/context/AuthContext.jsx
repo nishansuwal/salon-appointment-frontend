@@ -65,7 +65,13 @@ const AuthProvider = ({ children }) => {
   // ROUTE CONFIGURATION
   // ==========================================================
 
-  const PUBLIC_ROUTES = ["/", "/services", "/book-appointment"];
+  const PUBLIC_ROUTES = [
+    "/",
+    "/services",
+    "/book-appointment",
+    "/about",
+    "/gallery",
+  ];
 
   const GUEST_ONLY_ROUTES = [
     "/forgot-password",

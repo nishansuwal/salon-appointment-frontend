@@ -1,21 +1,35 @@
 import { Briefcase, Award, Star } from "lucide-react";
 import { Link } from "react-router-dom";
+const apiUrl = import.meta.env.VITE_API_URL_PUBLIC;
+const DEFAULT_AVATAR = "/user.jpg";
 
 export default function StaffCard({ staff }) {
+  console.log(staff);
+
+  const getImageUrl = (image) => {
+    if (!image) {
+      return DEFAULT_AVATAR;
+    }
+
+    return `${apiUrl}/storage/${image}`;
+  };
+
   return (
     <article className="group overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
       {/* Image */}
       <div className="relative flex justify-center bg-gradient-to-b from-rose-50 to-white pt-8">
         <img
-          src={staff.avatar || "/user.jpg"}
-          alt={staff.name}
+          src={getImageUrl(staff.user?.avatar)}
+          alt={staff.user?.name}
           className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-lg"
         />
       </div>
 
       {/* Content */}
       <div className="p-6 text-center">
-        <h3 className="text-xl font-bold text-stone-900">{staff.name}</h3>
+        <h3 className="text-xl font-bold text-stone-900">
+          {staff?.user?.name}
+        </h3>
 
         <p className="mt-1 font-medium text-rose-600">{staff.position}</p>
 
@@ -38,9 +52,11 @@ export default function StaffCard({ staff }) {
 
         <div className="mt-5 flex items-center justify-center gap-2 text-sm text-stone-500">
           <Briefcase size={16} />
-          <span>{staff.specialization}</span>
+          <span>
+            {staff.categories?.map((category) => category.name).join(", ") ||
+              "No specialization"}
+          </span>
         </div>
-
         <div className="mt-2 flex items-center justify-center gap-2 text-sm text-stone-500">
           <Award size={16} />
           <span>{staff.experience} Years Experience</span>
@@ -63,7 +79,7 @@ export default function StaffCard({ staff }) {
           to={`/services?staff=${staff.id}`}
           className="mt-3 inline-block text-sm font-semibold text-rose-600 hover:text-rose-700"
         >
-          Book with {staff.name.split(" ")[0]} →
+          Book with {staff.user?.name.split(" ")[0]} →
         </Link>
       </div>
     </article>

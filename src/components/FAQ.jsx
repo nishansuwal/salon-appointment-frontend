@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { FAQS } from "../utils/faqs";
 
-export default function FAQ() {
+export default function FAQ({faqs}) {
   const [openId, setOpenId] = useState(null);
 
   const toggle = (id) => {
@@ -16,7 +15,7 @@ export default function FAQ() {
       </h2>
 
       <div className="space-y-4">
-        {FAQS.map((faq) => (
+        {faqs.map((faq) => (
           <div
             key={faq.id}
             className="rounded-lg border bg-white"

@@ -11,14 +11,22 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+const apiUrl = import.meta.env.VITE_API_URL_PUBLIC;
 import Button from "../../components/common/Button";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import FAQ from "../../components/FAQ";
 import StaffCard from "../../components/StaffCard";
+import Testimonials from "../../components/Cards/Testimonials";
 
 import { fetchActiveServices } from "../../store/apps/user/userServices";
+import { fetchMainCategories } from "../../store/apps/public/categories";
+import { fetchRecords as fetchGallery } from "../../store/apps/public/images";
+import { fetchRecords as fetchStaff } from "../../store/apps/public/staffs";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchRecords as fetchFaq } from "../../store/apps/public/faqs";
+import { fetchRecords as fetchSetting } from "../../store/apps/public/settings";
+import { fetchRecords as fetchTestimonial } from "../../store/apps/public/testimonials";
 
 import {
   SALON,
@@ -30,20 +38,30 @@ import ServiceCard from "../../components/ServiceCard";
 
 export default function Home() {
   const dispatch = useDispatch();
-  const serviceStore = useSelector((state) => state.userServices);
-  console.log(serviceStore);
+  const serviceStore = useSelector(
+    (state) => state.userServices.activeServices,
+  );
+  const mainCategories = useSelector(
+    (state) => state.categories.mainCategories,
+  );
+
+  const galleryImages = useSelector((state) => state.images.data);
+
+  const staffs = useSelector((state) => state.staffs.data?.data);
+
+  const faqs = useSelector((state) => state.faqs.data);
+
+  const testimonials = useSelector((state) => state.testimonials.data);
 
   useEffect(() => {
     dispatch(fetchActiveServices());
+    dispatch(fetchMainCategories());
+    dispatch(fetchGallery({ pageSize: 4 }));
+    dispatch(fetchStaff());
+    dispatch(fetchFaq());
+    dispatch(fetchSetting());
+    dispatch(fetchTestimonial());
   }, [dispatch]);
-
-  // Sample gallery images
-  const galleryImages = [
-    "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80",
-  ];
 
   // Sample reviews
   const reviews = [
@@ -219,18 +237,17 @@ export default function Home() {
               </h2>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {SERVICE_CATEGORIES.map((category) => (
+              {mainCategories.map((category) => (
                 <Link
                   key={category}
-                  to={`/services?category=${category}`}
+                  to={`/services?category=${category.slug}`}
                   className="group relative overflow-hidden rounded-xl bg-stone-100 p-8 text-center transition hover:bg-rose-50"
                 >
                   <h3 className="text-lg font-bold text-stone-900 group-hover:text-rose-700">
-                    {category}
+                    {category.name}
                   </h3>
                   <p className="mt-1 text-sm text-stone-500">
-                    {SERVICES.filter((s) => s.category === category).length}{" "}
-                    services
+                    {category.services_count} services
                   </p>
                 </Link>
               ))}
@@ -257,7 +274,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {SERVICES.slice(0, 3).map((service) => (
+            {serviceStore.slice(0, 3).map((service) => (
               <ServiceCard key={service.id} service={service} />
             ))}
           </div>
@@ -275,7 +292,7 @@ export default function Home() {
               </h2>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {STAFF.map((staff) => (
+              {staffs?.map((staff) => (
                 <StaffCard key={staff.id} staff={staff} />
               ))}
             </div>
@@ -293,7 +310,7 @@ export default function Home() {
             </h2>
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {galleryImages.map((image, index) => (
+            {testimonials.map((img, index) => (
               <div
                 key={index}
                 className={`overflow-hidden rounded-lg bg-stone-200 ${
@@ -301,8 +318,8 @@ export default function Home() {
                 }`}
               >
                 <img
-                  src={image}
-                  alt={`Gallery ${index + 1}`}
+                  src={`${apiUrl}/storage/${img.image}`}
+                  alt={img.title}
                   className="h-full w-full object-cover transition hover:scale-105"
                   style={{ height: index === 0 ? "400px" : "190px" }}
                 />
@@ -347,48 +364,10 @@ export default function Home() {
         </section>
 
         {/* Customer Reviews */}
-        <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <p className="text-sm font-bold uppercase tracking-wide text-rose-600">
-              Customer Reviews
-            </p>
-            <h2 className="mt-2 text-3xl font-black text-stone-950">
-              What Our Clients Say
-            </h2>
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {reviews.map((review) => (
-              <div
-                key={review.id}
-                className="rounded-xl border border-stone-200 bg-white p-6 transition hover:shadow-lg"
-              >
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className={
-                        i < review.rating
-                          ? "fill-amber-400 text-amber-400"
-                          : "text-stone-300"
-                      }
-                    />
-                  ))}
-                </div>
-                <p className="mt-3 text-stone-700">{review.comment}</p>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="font-semibold text-stone-900">
-                    {review.name}
-                  </span>
-                  <span className="text-sm text-stone-500">{review.date}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        <Testimonials testimonials={testimonials} apiUrl={apiUrl} />
 
         {/* FAQs */}
-        <FAQ />
+        <FAQ faqs={faqs} />
 
         {/* Book Appointment CTA */}
         <section className="bg-rose-600 py-16">
