@@ -29,6 +29,10 @@ const apiUrl = import.meta.env.VITE_API_URL;
 // Create Axios instance
 const axiosInstance = axios.create({
   baseURL: apiUrl,
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
 });
 
 // Add request interceptor
@@ -39,7 +43,8 @@ axiosInstance.interceptors.request.use(
       sessionStorage.getItem("accessToken");
     // const accessTokens = window.localStorage.getItem("accessToken");
     if (accessToken) {
-      config.headers["accessToken"] = accessToken; // Send only the token
+      // config.headers["accessToken"] = accessToken; // Send only the token
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
