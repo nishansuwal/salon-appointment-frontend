@@ -1,6 +1,7 @@
 // src/context/AuthContext/AuthContext.jsx
 
 import { createContext, useEffect, useState } from "react";
+import axiosInstance from "../../store/components/axiosInstance";
 
 import axios from "axios";
 
@@ -109,10 +110,12 @@ export const AuthProvider = ({ children }) => {
     // ========================================================
     try {
       console.log("🔐 Checking token with Laravel...");
+      console.log("user profile");
 
-      const response = await axios.get("profile");
+      const response = await axiosInstance.get("profile");
+      console.log(response, "auth profile");
 
-      const verifiedUser = response.data.user;
+      const verifiedUser = response.data.data;
 
       console.log("✅ Token is valid");
       console.log("Authenticated user:", verifiedUser);
@@ -141,11 +144,11 @@ export const AuthProvider = ({ children }) => {
         replace: true,
       });
     }
-    setUser(storedUser);
+    // setUser(storedUser);
 
-    setAccessToken(storedToken);
+    // setAccessToken(storedToken);
 
-    handleAuthenticated(pathname, storedUser, storedRole);
+    // handleAuthenticated(pathname, storedUser, storedRole);
   };
 
   // ==========================================================
