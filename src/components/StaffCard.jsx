@@ -4,7 +4,6 @@ const apiUrl = import.meta.env.VITE_API_URL_PUBLIC;
 const DEFAULT_AVATAR = "/user.jpg";
 
 export default function StaffCard({ staff }) {
-  console.log(staff);
 
   const getImageUrl = (image) => {
     if (!image) {

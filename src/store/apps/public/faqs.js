@@ -27,11 +27,8 @@ export const addRecord = createAsyncThunk(
   `${modelName}s/add${modelName}`,
   async (data, { getState, dispatch }) => {
     try {
-      console.log("data", data);
       const response = await axiosInstance.post(`${pathName}`, data);
-      // const response = await axios.post(pathName, data);
-      console.log("response", response);
-      // dispatch(fetchRecords(getState().centers?.params));
+      dispatch(fetchRecords());
       return response.data;
     } catch (error) {
       // handleError(error);
@@ -46,7 +43,7 @@ export const updateRecord = createAsyncThunk(
   `${modelName}s/update${modelName}`,
   async (data, { getState, dispatch, rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`${pathName}/${data.id}`, data);
+      const response = await axiosInstance.put(`${pathName}/${data.id}`, data.data);
       dispatch(fetchRecords(getState().centers?.params));
       return response.data;
     } catch (error) {
@@ -134,7 +131,7 @@ const extraReducers = (builder) => {
   builder.addCase(addRecord.fulfilled, (state, action) => {
     console.log("action.payload", action.payload);
     // Assuming action.payload is the response from the API
-    saveToRedux(state, action.payload); // Saving Referral Points to redux
+    // saveToRedux(state, action.payload); // Saving Referral Points to redux
     state.loading = false; // Set loading false to hide loading screen
   });
 
@@ -153,7 +150,7 @@ const extraReducers = (builder) => {
   // API response received state (SUCCESS)
   builder.addCase(updateRecord.fulfilled, (state, action) => {
     // Assuming action.payload is the response from the API
-    saveToRedux(state, action.payload); // Saving Referral Points to redux
+    // saveToRedux(state, action.payload); // Saving Referral Points to redux
     state.loading = false; // Set loading false to hide loading screen
   });
 

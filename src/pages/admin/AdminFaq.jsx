@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FiPlus,
   FiSearch,
@@ -11,40 +11,106 @@ import {
 import FaqForm from "../../components/forms/FaqForm";
 import LargeModal from "../../components/common/LargeModal";
 import { getStatusColor } from "../../utils/getStatusColor";
+import {
+  showSuccessAlert,
+  showConfirmAlert,
+  showErrorAlert,
+} from "../../utils/alertUtils";
 
-const faqs = [
-  {
-    id: 1,
-    question: "How do I book an appointment?",
-    answer:
-      "Select your preferred service, choose a date and time, select a staff member, and confirm your booking.",
-    status: "Active",
-  },
-  {
-    id: 2,
-    question: "Can I cancel my appointment?",
-    answer:
-      "Yes. You can cancel your appointment before the scheduled time from your account dashboard.",
-    status: "Active",
-  },
-  {
-    id: 3,
-    question: "Which payment methods are accepted?",
-    answer: "We accept Cash, eSewa, Khalti and other online payment methods.",
-    status: "Inactive",
-  },
-  {
-    id: 4,
-    question: "Can I choose my preferred staff?",
-    answer: "Yes. During booking you can choose any available staff member.",
-    status: "Active",
-  },
-];
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchRecords as fetchFaq,
+  addRecord as addFaq,
+  updateRecord as updateFaq,
+  deleteRecord as deleteFaq,
+} from "../../store/apps/public/faqs";
 
 export default function AdminFaq() {
   const [openId, setOpenId] = useState(null);
   const [openForm, setOpenForm] = useState(false);
   const [selectedFaq, setSelectedFaq] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [status, setStatus] = useState("");
+
+  const dispatch = useDispatch();
+
+  const faqs = useSelector((state) => state.faqs.data);
+
+  useEffect(() => {
+    const params = {};
+    if (searchValue.trim()) {
+      params.search = searchValue.trim();
+    }
+
+    if (status) {
+      params.status = status;
+    }
+    dispatch(fetchFaq(params));
+  }, [dispatch, searchValue, status]);
+
+  const handleCloseModal = () => {
+    setOpenForm(false);
+    setSelectedFaq(null);
+  };
+
+  const handleSubmit = async (formData) => {
+    try {
+      if (selectedFaq) {
+        await dispatch(
+          updateFaq({
+            id: selectedFaq.id,
+            data: formData,
+          }),
+        ).unwrap();
+
+        showSuccessAlert("Updated!", "FAQ has been updated successfully.");
+      } else {
+        await dispatch(addFaq(formData)).unwrap();
+
+        showSuccessAlert("Created!", "FAQ has been created successfully.");
+      }
+
+      handleCloseModal();
+    } catch (error) {
+      console.error("FAQ save error:", error);
+
+      showErrorAlert(
+        "Something went wrong!",
+        error?.message || "Unable to save FAQ.",
+      );
+    }
+  };
+
+  const handleDelete = async (faq) => {
+    const confirmed = await showConfirmAlert(
+      "Delete FAQ?",
+      `Are you sure you want to delete "${faq.question}"?`,
+      "Yes, delete it",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await dispatch(deleteFaq(faq.id)).unwrap();
+
+      showSuccessAlert("Deleted!", "FAQ has been deleted successfully.");
+
+      if (openId === faq.id) {
+        setOpenId(null);
+      }
+
+      dispatch(fetchFaq());
+    } catch (error) {
+      console.error("Delete FAQ error:", error);
+
+      showErrorAlert(
+        "Delete Failed!",
+        error?.message || "Unable to delete FAQ.",
+      );
+    }
+  };
 
   return (
     <section className="space-y-6">
@@ -53,7 +119,11 @@ export default function AdminFaq() {
         title={selectedFaq ? "Edit FAQ" : "Add FAQ"}
         onClose={() => setOpenForm(false)}
       >
-        <FaqForm faq={selectedFaq} />
+        <FaqForm
+          faq={selectedFaq}
+          onSubmit={handleSubmit}
+          onCancel={handleCloseModal}
+        />
       </LargeModal>
       {/* Header */}
 
@@ -94,10 +164,13 @@ export default function AdminFaq() {
             />
           </div>
 
-          <select className="rounded-lg border border-stone-300 px-4 py-3">
-            <option>All Status</option>
-            <option>Active</option>
-            <option>Inactive</option>
+          <select
+            onChange={(e) => setStatus(e.target.value)}
+            className="rounded-lg border border-stone-300 px-4 py-3"
+          >
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
           </select>
         </div>
       </div>
@@ -105,7 +178,7 @@ export default function AdminFaq() {
       {/* FAQ Cards */}
 
       <div className="space-y-4">
-        {faqs.map((faq) => {
+        {faqs?.map((faq) => {
           const open = openId === faq.id;
 
           return (
@@ -150,7 +223,10 @@ export default function AdminFaq() {
                       <FiEdit2 />
                     </button>
 
-                    <button className="rounded-lg bg-red-50 p-3 text-red-600 hover:bg-red-100">
+                    <button
+                      onClick={() => handleDelete(faq)}
+                      className="rounded-lg bg-red-50 p-3 text-red-600 hover:bg-red-100"
+                    >
                       <FiTrash2 />
                     </button>
                   </div>
