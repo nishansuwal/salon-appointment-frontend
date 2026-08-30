@@ -247,7 +247,10 @@ export default function Home() {
                     {category.name}
                   </h3>
                   <p className="mt-1 text-sm text-stone-500">
-                    {category.services_count} services
+                    {category.services_count > 0
+                      ? category.services_count
+                      : (category.total_services ?? 0)}{" "}
+                    services
                   </p>
                 </Link>
               ))}

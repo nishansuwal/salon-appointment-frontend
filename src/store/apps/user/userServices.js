@@ -15,7 +15,7 @@ export const fetchActiveServices = createAsyncThunk(
   `${sliceName}/fetchActiveServices`,
   async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/services", {
+      const response = await axiosInstance.get("/client-services", {
         params,
       });
       return response.data;
@@ -41,7 +41,7 @@ export const fetchServiceBySlug = createAsyncThunk(
   `${sliceName}/fetchServiceBySlug`,
   async (slug, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/services/${slug}`);
+      const response = await axiosInstance.get(`/get-service-by-slug/${slug}`);
 
       return response.data;
     } catch (error) {

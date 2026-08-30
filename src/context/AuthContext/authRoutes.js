@@ -1,6 +1,7 @@
 export const PUBLIC_ROUTES = [
   "/",
   "/services",
+  "/service/:slug",
   "/book-appointment",
   "/about",
   "/gallery",
