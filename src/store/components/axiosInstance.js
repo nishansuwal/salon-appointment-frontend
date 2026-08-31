@@ -31,7 +31,6 @@ const axiosInstance = axios.create({
   baseURL: apiUrl,
   headers: {
     Accept: "application/json",
-    "Content-Type": "application/json",
   },
 });
 
@@ -46,6 +45,12 @@ axiosInstance.interceptors.request.use(
       // config.headers["accessToken"] = accessToken; // Send only the token
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
+
+    // Important for FormData
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    }
+
     return config;
   },
   (error) => {
