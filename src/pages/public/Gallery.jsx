@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { GALLERY_IMAGES } from "../../utils/galleryImages";
 import Navbar from "../../components/layout/Navbar";
-4;
 
 import { fetchRecords as fetchGallery } from "../../store/apps/public/images";
 import { useDispatch, useSelector } from "react-redux";
