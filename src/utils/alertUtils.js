@@ -65,22 +65,20 @@ export const showWarningAlert = (title, text) => {
 };
 
 // Delete Confirmation Alert (with custom styling)
-export const showDeleteAlert = (title, text, onConfirm) => {
-  return Swal.fire({
-    title: title,
-    text: text,
-    icon: "error",
+export const showDeleteAlert = async (title, text) => {
+  const result = await Swal.fire({
+    title,
+    text,
+    icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#d33",
     cancelButtonColor: "#6b7280",
     confirmButtonText: "Yes, Delete!",
     cancelButtonText: "Cancel",
     reverseButtons: true,
-  }).then((result) => {
-    if (result.isConfirmed) {
-      onConfirm();
-    }
   });
+
+  return result.isConfirmed;
 };
 
 // Toggle Status Alert
