@@ -22,6 +22,24 @@ export const fetchRecords = createAsyncThunk(
   },
 );
 
+export const fetchRecordById = createAsyncThunk(
+  `${modelName}s/fetch${modelName}ById`,
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`${pathName}/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Fetch staff by ID error:", error);
+
+      return rejectWithValue(
+        error.response?.data || {
+          message: error.message || `Failed to fetch ${modelName}`,
+        },
+      );
+    }
+  },
+);
+
 // ** Add Record
 export const addRecord = createAsyncThunk(
   `${modelName}s/add${modelName}`,
@@ -122,6 +140,24 @@ const extraReducers = (builder) => {
   builder.addCase(fetchRecords.rejected, (state, action) => {
     state.message = action.payload?.message || `Failed to fetch ${modelName}s!`;
     state.loading = false; // Set loading false to hide loading screen
+  });
+
+    // *** FETCH  by id CASES
+  builder.addCase(fetchRecordById.pending, (state) => {
+    state.loading = true;
+    state.message = "";
+  });
+
+  builder.addCase(fetchRecordById.fulfilled, (state, action) => {
+    state.loading = false;
+    state.selectedRecord = action.payload.data;
+  });
+
+  builder.addCase(fetchRecordById.rejected, (state, action) => {
+    state.loading = false;
+
+    state.message =
+      action.payload?.message || `Failed to fetch ${modelName} by ID!`;
   });
 
   // *** ADD CASES

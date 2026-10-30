@@ -13,7 +13,7 @@ export const fetchRecords = createAsyncThunk(
   `${modelName}s/fetch${pathName}s`,
   async (params, { rejectWithValue }) => {
     try {
-      const path = "admin/get-all";
+      const path = "users";
       const response = await axiosInstance.get(path, {params});
       return response.data;
     } catch (error) {

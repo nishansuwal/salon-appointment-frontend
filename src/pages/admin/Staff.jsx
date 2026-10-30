@@ -9,55 +9,55 @@ import {
   FiBriefcase,
   FiUser,
 } from "react-icons/fi";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LargeModal from "../../components/common/LargeModal";
 import StaffForm from "../../components/forms/StaffForm";
+import { useDispatch, useSelector } from "react-redux";
 
-const staffs = [
-  {
-    id: 1,
-    name: "Ram Sharma",
-    position: "Senior Hair Stylist",
-    email: "ram@gmail.com",
-    phone: "9800000001",
-    experience: 6,
-    status: "Active",
-    workingDays: "Sun - Fri",
-    workingHours: "10:00 AM - 7:00 PM",
-    services: ["Hair Cut", "Hair Spa", "Hair Color"],
-    image: "https://i.pravatar.cc/150?img=12",
-  },
-  {
-    id: 2,
-    name: "Anita Rai",
-    position: "Makeup Artist",
-    email: "anita@gmail.com",
-    phone: "9800000002",
-    experience: 4,
-    status: "Active",
-    workingDays: "Sun - Thu",
-    workingHours: "9:00 AM - 6:00 PM",
-    services: ["Bridal Makeup", "Party Makeup"],
-    image: "https://i.pravatar.cc/150?img=32",
-  },
-  {
-    id: 3,
-    name: "Hari KC",
-    position: "Massage Therapist",
-    email: "hari@gmail.com",
-    phone: "9800000003",
-    experience: 8,
-    status: "Inactive",
-    workingDays: "Mon - Sat",
-    workingHours: "11:00 AM - 8:00 PM",
-    services: ["Massage", "Body Therapy"],
-    image: "https://i.pravatar.cc/150?img=15",
-  },
-];
+import {
+  showSuccessAlert,
+  showErrorAlert,
+  showDeleteAlert,
+} from "../../utils/alertUtils";
+const apiUrl = import.meta.env.VITE_API_URL_PUBLIC;
+
+import {
+  fetchRecords as fetchStaff,
+  addRecord as addStaff,
+  updateRecord as updateStaff,
+  deleteRecord as deleteStaff,
+  fetchRecordById as fetchStaffById,
+} from "../../store/apps/public/staffs";
 
 export default function Staff() {
+  const dispatch = useDispatch();
+
   const [open, setOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [isActive, setIsActive] = useState("");
+
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    const params = {
+      page,
+      pageSize,
+      search: searchValue || undefined,
+      isActive: isActive || undefined,
+    };
+
+    dispatch(fetchStaff(params));
+  }, [dispatch, page, pageSize, searchValue, isActive]);
+
+  const {
+    data: staffsDetails = [],
+    pagination = null,
+    loading = false,
+  } = useSelector((state) => state.staffs);
+
+  const staffs = staffsDetails.data;
 
   const handleAdd = () => {
     setSelectedStaff(null);
@@ -68,6 +68,73 @@ export default function Staff() {
     setSelectedStaff(staff);
     setOpen(true);
   };
+
+  const handleCloseModal = () => {
+    setSelectedStaff(null);
+    setOpen(false);
+  };
+
+  const handleSubmit = async (formData) => {
+    try {
+      if (selectedStaff) {
+        await dispatch(
+          updateStaff({
+            id: selectedStaff.id,
+            data: formData,
+          }),
+        ).unwrap();
+
+        showSuccessAlert("Updated!", "Image has been updated successfully.");
+      } else {
+        await dispatch(addStaff(formData)).unwrap();
+
+        showSuccessAlert("Created!", "Image has been created successfully.");
+      }
+
+      handleCloseModal();
+    } catch (error) {
+      console.error("Image save error:", error);
+
+      showErrorAlert(
+        "Something went wrong!",
+        error?.message || "Unable to save image.",
+      );
+    }
+  };
+
+  const handleDelete = async (staff) => {
+    const confirmed = await showDeleteAlert(
+      "Delete Staff?",
+      `Are you sure you want to delete`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await dispatch(deleteStaff(staff.id)).unwrap();
+
+      showSuccessAlert("Deleted!", "Staff has been deleted successfully.");
+    } catch (error) {
+      console.error("Delete image error:", error);
+
+      showErrorAlert(
+        "Delete Failed!",
+        error?.message || "Unable to delete image.",
+      );
+    }
+  };
+
+  const getImageUrl = (image) => {
+    if (!image) {
+      const DEFAULT_AVATAR = "/user.jpg";
+      return DEFAULT_AVATAR;
+    }
+
+    return `${apiUrl}/storage/${image}`;
+  };
+
   return (
     <section className="space-y-8">
       <LargeModal
@@ -75,7 +142,11 @@ export default function Staff() {
         title={selectedStaff ? "Edit Staff" : "Add Staff"}
         onClose={() => setOpen(false)}
       >
-        <StaffForm staff={selectedStaff} onClose={() => setOpen(false)} />
+        <StaffForm
+          staff={selectedStaff}
+          onSubmit={handleSubmit}
+          onClose={() => setOpen(false)}
+        />
       </LargeModal>
       {/* Header */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -117,16 +188,8 @@ export default function Staff() {
 
           <select className="rounded-lg border border-stone-300 px-4 py-3 outline-none focus:border-rose-500">
             <option>All Status</option>
-            <option>Active</option>
-            <option>Inactive</option>
-          </select>
-
-          <select className="rounded-lg border border-stone-300 px-4 py-3 outline-none focus:border-rose-500">
-            <option>Newest</option>
-            <option>Oldest</option>
-            <option>Name A-Z</option>
-            <option>Name Z-A</option>
-            <option>Experience</option>
+            <option value={true}>Active</option>
+            <option value={false}>Inactive</option>
           </select>
         </div>
       </div>
@@ -134,7 +197,7 @@ export default function Staff() {
       {/* Staff Cards */}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {staffs.map((staff) => (
+        {staffs?.map((staff) => (
           <div
             key={staff.id}
             className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm transition hover:shadow-lg"
@@ -143,8 +206,8 @@ export default function Staff() {
 
             <div className="flex items-start gap-4">
               <img
-                src={staff.image}
-                alt={staff.name}
+                src={getImageUrl(staff.user?.avatar)}
+                alt={staff.user?.name}
                 className="h-20 w-20 rounded-full object-cover"
               />
 
@@ -152,7 +215,7 @@ export default function Staff() {
                 <div className="flex items-start justify-between">
                   <div>
                     <h2 className="text-xl font-bold text-stone-900">
-                      {staff.name}
+                      {staff?.user?.name}
                     </h2>
 
                     <p className="mt-1 text-sm text-stone-500">
@@ -162,12 +225,12 @@ export default function Staff() {
 
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      staff.status === "Active"
+                      staff.status === true
                         ? "bg-green-100 text-green-700"
                         : "bg-red-100 text-red-700"
                     }`}
                   >
-                    {staff.status}
+                    {staff.is_active}
                   </span>
                 </div>
               </div>
@@ -178,12 +241,12 @@ export default function Staff() {
             <div className="mt-6 space-y-3 text-sm text-stone-600">
               <div className="flex items-center gap-2">
                 <FiPhone />
-                {staff.phone}
+                {staff.user?.phone}
               </div>
 
               <div className="flex items-center gap-2">
                 <FiMail />
-                {staff.email}
+                {staff.user?.email}
               </div>
 
               <div className="flex items-center gap-2">
@@ -191,26 +254,13 @@ export default function Staff() {
                 {staff.experience} Years Experience
               </div>
 
-              <div className="flex items-center gap-2">
-                <FiClock />
-                {staff.workingDays} • {staff.workingHours}
-              </div>
-            </div>
-
-            {/* Services */}
-
-            <div className="mt-6">
-              <p className="mb-3 text-sm font-semibold text-stone-700">
-                Assigned Services
-              </p>
-
               <div className="flex flex-wrap gap-2">
-                {staff.services.map((service) => (
+                {staff.categories.map((categorie) => (
                   <span
-                    key={service}
+                    key={categorie}
                     className="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700"
                   >
-                    {service}
+                    {categorie?.name}
                   </span>
                 ))}
               </div>
@@ -228,7 +278,10 @@ export default function Staff() {
                 Edit
               </button>
 
-              <button className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100">
+              <button
+                onClick={() => handleDelete(staff)}
+                className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+              >
                 <FiTrash2 />
                 Delete
               </button>

@@ -70,11 +70,8 @@ export const addRecord = createAsyncThunk(
   `${modelName}s/add${modelName}`,
   async (data, { getState, dispatch }) => {
     try {
-      console.log("data", data);
       const response = await axiosInstance.post(`${pathName}`, data);
-      // const response = await axios.post(pathName, data);
-      console.log("response", response);
-      // dispatch(fetchRecords(getState().centers?.params));
+      await dispatch(fetchRecords(getState().categories?.params));
       return response.data;
     } catch (error) {
       // handleError(error);

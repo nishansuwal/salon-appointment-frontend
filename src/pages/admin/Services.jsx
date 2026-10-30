@@ -1,21 +1,86 @@
+import { useEffect, useState } from "react";
 import { SERVICES, STAFF } from "../../utils/constants";
 import { formatCurrency } from "../../utils/formatDate";
 import { FiPlus, FiEdit2, FiTrash2, FiClock, FiUsers } from "react-icons/fi";
+import LargeModal from "../../components/common/LargeModal";
 import Swal from "sweetalert2";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import ServiceForm from "../../components/forms/ServiceForm";
+
+import { useDispatch, useSelector } from "react-redux";
+import { fetchChildCategories } from "../../store/apps/public/categories";
+import {
+  fetchRecords as fetchServices,
+  addRecord as addService,
+  updateRecord as updateService,
+} from "../../store/apps/admin/adminServices";
 
 export default function AdminServices() {
-  const [services, setServices] = useState(SERVICES);
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [showModal, setShowModal] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+
+  const [searchValue, setSearchValue] = useState("");
+  const [status, setStatus] = useState("");
+
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const { childCategories = [] } = useSelector((state) => state.categories);
+  const services = useSelector((state) => state.adminServices.data.data || []);
+  console.log("services", services);
+
+  useEffect(() => {
+    dispatch(fetchChildCategories());
+    const params = {
+      page,
+      pageSize,
+      search: searchValue || undefined,
+    };
+    dispatch(fetchServices(params));
+  }, [dispatch, page, pageSize, searchValue]);
 
   const handleAdd = () => {
-    navigate("/admin/services/create");
+    setEditingItem(null);
+    setShowModal(true);
   };
 
   const handleEdit = (service) => {
     if (!service) return;
-      navigate(`/admin/services/edit/${service.slug}`);
+    setEditingItem(service);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setEditingItem(null);
+    setShowModal(false);
+  };
+
+  const handleSubmit = async (serviceData) => {
+    const formData = new FormData();
+
+    Object.entries(serviceData).forEach(([key, value]) => {
+      if (key === "images") {
+        value.forEach((image) => formData.append("images[]", image));
+      } else if (Array.isArray(value)) {
+        value.forEach((item) => formData.append(`${key}[]`, item));
+      } else if (value !== undefined && value !== null) {
+        formData.append(key, value);
+      }
+    });
+
+    if (editingItem) {
+      await dispatch(
+        updateService({
+          id: editingItem.id,
+          data: formData,
+        }),
+      ).unwrap();
+    } else {
+      await dispatch(addService(formData)).unwrap();
+    }
+
+    handleCloseModal();
   };
 
   const handleDelete = (service) => {
@@ -28,6 +93,18 @@ export default function AdminServices() {
 
   return (
     <section className="grid gap-6">
+      <LargeModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        title={editingItem ? "Edit Service" : "Add New Service"}
+      >
+        <ServiceForm
+          editingItem={editingItem}
+          subCategories={childCategories}
+          onSubmit={handleSubmit}
+          onCancel={handleCloseModal}
+        />
+      </LargeModal>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -48,9 +125,9 @@ export default function AdminServices() {
       {/* Services */}
       <div className="grid gap-5">
         {services.map((service) => {
-          const assigned = STAFF.filter((member) =>
-            service.staffIds.includes(member.id),
-          );
+          // const assigned = STAFF.filter((member) =>
+          //   service.staffIds.includes(member.id),
+          // );
 
           return (
             <article
@@ -61,7 +138,7 @@ export default function AdminServices() {
               <div className="flex flex-wrap items-start justify-between gap-5">
                 <div className="flex-1">
                   <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-rose-700">
-                    {service.category}
+                    {service.category?.name}
                   </span>
 
                   <h2 className="mt-3 text-2xl font-black text-stone-900">
@@ -73,13 +150,13 @@ export default function AdminServices() {
                   </p>
 
                   <div className="mt-5 flex flex-wrap gap-2">
-                    {assigned.map((member) => (
+                    {service?.staff?.map((member) => (
                       <span
                         key={member.id}
                         className="flex items-center gap-1 rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-700"
                       >
                         <FiUsers size={12} />
-                        {member.name}
+                        {member.user?.name}
                       </span>
                     ))}
                   </div>

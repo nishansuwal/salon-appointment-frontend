@@ -3,19 +3,7 @@ import Select from "react-select";
 import { FiArrowLeft, FiUploadCloud } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 
-const categories = [
-  { value: 1, label: "Hair" },
-  { value: 2, label: "Facial" },
-  { value: 3, label: "Massage" },
-  { value: 4, label: "Makeup" },
-];
 
-const staffOptions = [
-  { value: 1, label: "Ram Sharma" },
-  { value: 2, label: "Sita Thapa" },
-  { value: 3, label: "Hari KC" },
-  { value: 4, label: "Anita Rai" },
-];
 
 export default function ServiceForm() {
   const navigate = useNavigate();
