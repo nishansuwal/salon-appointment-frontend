@@ -1,12 +1,10 @@
 import { NavLink, Outlet } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Calendar,
-  Users,
-  Star,
-} from "lucide-react";
+import { LayoutDashboard, Calendar, Users, Star, LogOut } from "lucide-react";
+import useAuth from "../../hooks/useAuth";
 
 export default function StaffLayout() {
+  const { logout } = useAuth();
+
   return (
     <div className="h-screen bg-gray-100">
       {/* Fixed Sidebar */}
@@ -18,41 +16,36 @@ export default function StaffLayout() {
 
         {/* Scrollable Menu */}
         <nav className="flex-1 space-y-2 overflow-y-auto p-4">
-          <SidebarLink
-            to="/staff"
-            icon={<LayoutDashboard size={18} />}
-          >
+          <SidebarLink to="/staff" icon={<LayoutDashboard size={18} />}>
             Dashboard
           </SidebarLink>
 
-          <SidebarLink
-            to="/staff/appointments"
-            icon={<Calendar size={18} />}
-          >
+          <SidebarLink to="/staff/appointments" icon={<Calendar size={18} />}>
             Appointments
           </SidebarLink>
 
-          <SidebarLink
-            to="/staff/calendar"
-            icon={<Calendar size={18} />}
-          >
+          <SidebarLink to="/staff/calendar" icon={<Calendar size={18} />}>
             Calendar
           </SidebarLink>
 
-          <SidebarLink
-            to="/staff/profile"
-            icon={<Users size={18} />}
-          >
+          <SidebarLink to="/staff/profile" icon={<Users size={18} />}>
             Profile
           </SidebarLink>
 
-          <SidebarLink
-            to="/staff/reviews"
-            icon={<Star size={18} />}
-          >
+          <SidebarLink to="/staff/reviews" icon={<Star size={18} />}>
             Reviews
           </SidebarLink>
         </nav>
+        <div className="border-t border-white/10 p-4">
+          <button
+            type="button"
+            onClick={logout}
+            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 font-medium text-white/80 transition hover:bg-red-500 hover:text-white"
+          >
+            <LogOut size={18} />
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}

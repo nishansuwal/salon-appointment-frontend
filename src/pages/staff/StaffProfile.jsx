@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import {
   Camera,
   User,
@@ -8,30 +10,97 @@ import {
   Briefcase,
   Award,
   Lock,
+  Clock3,
+  Star,
+  CalendarDays,
 } from "lucide-react";
 
+import { fetchRecords } from "../../store/apps/staff/staffProfiles";
+
 export default function StaffProfile() {
-  const [status, setStatus] = useState(true);
+  const dispatch = useDispatch();
+
+  const [status, setStatus] = useState(false);
+
+  // Get staff profile from Redux
+  const staffState = useSelector(
+    (state) => state.staffProfile.data
+  );
+
+  useEffect(() => {
+    dispatch(fetchRecords());
+  }, [dispatch]);
+
+  // Handle API response structure
+  const profile = staffState?.data ?? staffState;
+
+  const user = profile?.user ?? {};
+
+  const categories = profile?.categories ?? [];
+  const availability = profile?.availability ?? [];
+
+  // Update status when profile is loaded
+  useEffect(() => {
+    if (profile) {
+      setStatus(Boolean(profile.is_active));
+    }
+  }, [profile?.is_active]);
+
+  // Format joining date
+  const formatDate = (date) => {
+    if (!date) return "N/A";
+
+    return new Date(date).toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  // Get category names
+  const specialization = categories
+    .map((category) => category.name)
+    .join(", ");
+
+  if (!profile) {
+    return (
+      <div className="rounded-xl border bg-white p-10 text-center text-stone-500">
+        Loading staff profile...
+      </div>
+    );
+  }
 
   return (
     <section className="space-y-6">
+
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-black text-stone-900">My Profile</h1>
+        <h1 className="text-3xl font-black text-stone-900">
+          My Profile
+        </h1>
 
-        <p className="mt-2 text-stone-500">Manage your personal information.</p>
+        <p className="mt-2 text-stone-500">
+          Manage your personal information.
+        </p>
       </div>
 
       <form className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Left */}
 
+        <div className="grid gap-6 lg:grid-cols-3">
+
+          {/* LEFT PROFILE CARD */}
           <div className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
+
             <div className="flex flex-col items-center">
+
               <div className="relative">
+
                 <img
-                  src="https://i.pravatar.cc/200"
-                  alt=""
+                  src={
+                    user.avatar ||
+                    "https://i.pravatar.cc/200"
+                  }
+                  alt={user.name || "Staff"}
                   className="h-36 w-36 rounded-full object-cover"
                 />
 
@@ -41,111 +110,174 @@ export default function StaffProfile() {
                 >
                   <Camera size={18} />
                 </button>
+
               </div>
 
-              <h2 className="mt-5 text-xl font-bold">Ram Sharma</h2>
+              <h2 className="mt-5 text-xl font-bold">
+                {user.name || "Staff Member"}
+              </h2>
 
-              <p className="text-stone-500">Senior Hair Stylist</p>
+              <p className="text-stone-500">
+                {profile.position || "No position assigned"}
+              </p>
 
-              <span className="mt-3 rounded-full bg-green-100 px-4 py-1 text-sm font-semibold text-green-700">
-                Active
+              <span
+                className={`mt-3 rounded-full px-4 py-1 text-sm font-semibold ${
+                  status
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+              >
+                {status ? "Active" : "Inactive"}
               </span>
+
             </div>
 
+            {/* STAFF DETAILS */}
             <div className="mt-8 space-y-4 text-sm">
-              <Info title="Employee ID" value="EMP-001" />
 
-              <Info title="Joined" value="12 Jan 2024" />
+              <Info
+                title="Employee ID"
+                value={`EMP-${String(profile.id).padStart(3, "0")}`}
+              />
 
-              <Info title="Experience" value="5 Years" />
+              <Info
+                title="Joined"
+                value={formatDate(profile.created_at)}
+              />
 
-              <Info title="Specialization" value="Hair Cut, Hair Color" />
+              <Info
+                title="Experience"
+                value={`${profile.experience ?? 0} Years`}
+              />
+
+              <Info
+                title="Specialization"
+                value={specialization || "Not assigned"}
+              />
+
+              <Info
+                title="Average Rating"
+                value={profile.avg_rating ?? "Not rated"}
+              />
+
             </div>
           </div>
 
-          {/* Right */}
-
+          {/* RIGHT INFORMATION */}
           <div className="space-y-6 lg:col-span-2">
+
+            {/* PERSONAL INFORMATION */}
             <div className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-6 text-lg font-bold">Personal Information</h2>
+
+              <h2 className="mb-6 text-lg font-bold">
+                Personal Information
+              </h2>
 
               <div className="grid gap-5 md:grid-cols-2">
+
                 <Input
                   icon={<User size={18} />}
                   label="Full Name"
-                  placeholder="Ram Sharma"
+                  value={user.name}
                 />
 
                 <Input
                   icon={<Mail size={18} />}
                   label="Email"
-                  placeholder="ram@gmail.com"
+                  value={user.email}
                 />
 
                 <Input
                   icon={<Phone size={18} />}
                   label="Phone"
-                  placeholder="9812345678"
+                  value={user.phone}
                 />
 
                 <Input
                   icon={<Briefcase size={18} />}
                   label="Position"
-                  placeholder="Senior Hair Stylist"
+                  value={profile.position}
                 />
 
                 <div className="md:col-span-2">
-                  <label className="mb-2 block font-semibold">Address</label>
 
-                  <div className="relative">
-                    <MapPin
-                      className="absolute left-3 top-3 text-stone-400"
-                      size={18}
-                    />
-
-                    <input
-                      className="w-full rounded-lg border border-stone-300 py-3 pl-10 pr-4 focus:border-rose-500 outline-none"
-                      placeholder="Kathmandu"
-                    />
-                  </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="mb-2 block font-semibold">Bio</label>
+                  <label className="mb-2 block font-semibold">
+                    Bio
+                  </label>
 
                   <textarea
                     rows={5}
-                    className="w-full rounded-lg border border-stone-300 p-4 outline-none focus:border-rose-500"
-                    placeholder="Write something..."
+                    value={profile.bio ?? ""}
+                    readOnly
+                    className="w-full rounded-lg border border-stone-300 bg-stone-50 p-4 outline-none"
+                    placeholder="No bio available"
                   />
+
                 </div>
+
               </div>
             </div>
 
-            {/* Work */}
-
+            {/* WORK INFORMATION */}
             <div className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-6 text-lg font-bold">Work Information</h2>
 
-              <div className="grid gap-5 md:grid-cols-3">
+              <h2 className="mb-6 text-lg font-bold">
+                Work Information
+              </h2>
+
+              <div className="grid gap-5 md:grid-cols-2">
+
                 <Input
                   icon={<Award size={18} />}
                   label="Experience"
-                  placeholder="5 Years"
+                  value={`${profile.experience ?? 0} Years`}
                 />
 
                 <Input
-                  icon={<Briefcase size={18} />}
-                  label="Specialization"
-                  placeholder="Hair Cut"
+                  icon={<Star size={18} />}
+                  label="Average Rating"
+                  value={profile.avg_rating ?? "Not rated"}
                 />
 
+                {/* SPECIALIZATIONS */}
+                <div className="md:col-span-2">
+
+                  <label className="mb-3 block font-semibold">
+                    Specializations
+                  </label>
+
+                  {categories.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+
+                      {categories.map((category) => (
+                        <span
+                          key={category.id}
+                          className="rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700"
+                        >
+                          {category.name}
+                        </span>
+                      ))}
+
+                    </div>
+                  ) : (
+                    <p className="text-sm text-stone-500">
+                      No specializations assigned.
+                    </p>
+                  )}
+
+                </div>
+
+                {/* STATUS */}
                 <div>
-                  <label className="mb-2 block font-semibold">Status</label>
+
+                  <label className="mb-2 block font-semibold">
+                    Status
+                  </label>
 
                   <button
                     type="button"
-                    onClick={() => setStatus(!status)}
+                    onClick={() => setStatus((prev) => !prev)}
                     className={`relative flex h-7 w-14 items-center rounded-full transition ${
                       status ? "bg-rose-600" : "bg-stone-300"
                     }`}
@@ -156,71 +288,93 @@ export default function StaffProfile() {
                       }`}
                     />
                   </button>
+
                 </div>
+
               </div>
             </div>
 
-            {/* Password */}
-
+            {/* AVAILABILITY */}
             <div className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-6 text-lg font-bold">Change Password</h2>
 
-              <div className="grid gap-5 md:grid-cols-2">
-                <Input
-                  icon={<Lock size={18} />}
-                  type="password"
-                  label="New Password"
-                />
+              <h2 className="mb-6 flex items-center gap-2 text-lg font-bold">
+                <Clock3 size={20} />
+                Working Availability
+              </h2>
 
-                <Input
-                  icon={<Lock size={18} />}
-                  type="password"
-                  label="Confirm Password"
-                />
-              </div>
+              {availability.length > 0 ? (
+                <div className="space-y-3">
+
+                  {availability.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-stone-50 p-4"
+                    >
+
+                      <span className="font-semibold capitalize text-stone-800">
+                        {item.day_of_week}
+                      </span>
+
+                      <span className="text-sm text-stone-600">
+                        {item.start_time} - {item.end_time}
+                      </span>
+
+                    </div>
+                  ))}
+
+                </div>
+              ) : (
+                <p className="text-sm text-stone-500">
+                  No availability records found.
+                </p>
+              )}
+
             </div>
+
           </div>
         </div>
 
-        <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            className="rounded-lg border border-stone-300 px-6 py-3 hover:bg-stone-100"
-          >
-            Cancel
-          </button>
-
-          <button className="rounded-lg bg-rose-600 px-6 py-3 font-semibold text-white hover:bg-rose-700">
-            Save Changes
-          </button>
-        </div>
       </form>
     </section>
   );
 }
 
+// Reusable information component
 function Info({ title, value }) {
   return (
     <div>
-      <p className="text-xs uppercase text-stone-500">{title}</p>
-      <p className="mt-1 font-semibold">{value}</p>
+      <p className="text-xs uppercase text-stone-500">
+        {title}
+      </p>
+
+      <p className="mt-1 font-semibold">
+        {value || "N/A"}
+      </p>
     </div>
   );
 }
 
-function Input({ label, icon, type = "text", placeholder }) {
+// Reusable input component
+function Input({ label, icon, value }) {
   return (
     <div>
-      <label className="mb-2 block font-semibold">{label}</label>
+      <label className="mb-2 block font-semibold">
+        {label}
+      </label>
 
       <div className="relative">
-        <span className="absolute left-3 top-3 text-stone-400">{icon}</span>
+
+        <span className="absolute left-3 top-3 text-stone-400">
+          {icon}
+        </span>
 
         <input
-          type={type}
-          placeholder={placeholder}
-          className="w-full rounded-lg border border-stone-300 py-3 pl-10 pr-4 outline-none focus:border-rose-500"
+          type="text"
+          value={value ?? ""}
+          readOnly
+          className="w-full rounded-lg border border-stone-300 bg-stone-50 py-3 pl-10 pr-4 outline-none"
         />
+
       </div>
     </div>
   );

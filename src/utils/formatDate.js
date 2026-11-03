@@ -6,13 +6,27 @@ export function formatCurrency(amount) {
   }).format(amount);
 }
 
+// export function formatDate(dateString) {
+//   return new Intl.DateTimeFormat("en", {
+//     weekday: "short",
+//     month: "short",
+//     day: "numeric",
+//     year: "numeric",
+//   }).format(new Date(`${dateString}T00:00:00`));
+// }
 export function formatDate(dateString) {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+
+  if (Number.isNaN(date.getTime())) return "";
+
   return new Intl.DateTimeFormat("en", {
     weekday: "short",
     month: "short",
     day: "numeric",
     year: "numeric",
-  }).format(new Date(`${dateString}T00:00:00`));
+  }).format(date);
 }
 
 export function formatTime(time) {

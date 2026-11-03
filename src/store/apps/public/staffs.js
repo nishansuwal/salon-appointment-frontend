@@ -11,217 +11,355 @@ const pathName = "staffs";
 
 // ** Fetch Records
 export const fetchRecords = createAsyncThunk(
-  `${modelName}s/fetch${pathName}s`,
-  async (params, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.get(pathName, { params });
-      return response.data;
-    } catch (error) {
-      handleError(error);
+    `${modelName}s/fetch${pathName}s`,
+    async (params, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.get(pathName, { params });
+            return response.data;
+        } catch (error) {
+            handleError(error);
+            return rejectWithValue(
+                error.response?.data || {
+                    message: error.message || `Failed to fetch ${modelName}s`,
+                }
+            );
+        }
     }
-  },
 );
+
+// ==========================================
+// FETCH RECORD BY ID
+// ==========================================
 
 export const fetchRecordById = createAsyncThunk(
-  `${modelName}s/fetch${modelName}ById`,
-  async (id, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.get(`${pathName}/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error("Fetch staff by ID error:", error);
+    `${modelName}s/fetch${modelName}ById`,
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.get(`${pathName}/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error("Fetch staff by ID error:", error);
 
-      return rejectWithValue(
-        error.response?.data || {
-          message: error.message || `Failed to fetch ${modelName}`,
-        },
-      );
+            return rejectWithValue(
+                error.response?.data || {
+                    message: error.message || `Failed to fetch ${modelName}`,
+                }
+            );
+        }
     }
-  },
 );
 
-// ** Add Record
+// ==========================================
+// ADD RECORD
+// ==========================================
+
 export const addRecord = createAsyncThunk(
-  `${modelName}s/add${modelName}`,
-  async (data, { getState, dispatch }) => {
-    try {
-      console.log("data", data);
-      const response = await axiosInstance.post(`${pathName}`, data);
-      // const response = await axios.post(pathName, data);
-      console.log("response", response);
-      // dispatch(fetchRecords(getState().centers?.params));
-      return response.data;
-    } catch (error) {
-      // handleError(error);
-      console.error("❌ API Error:", error);
-      return Promise.reject(error); // Add this line
+    `${modelName}s/add${modelName}`,
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post(`${pathName}`, data);
+
+            return response.data;
+        } catch (error) {
+            console.error("API Error:", error);
+
+            return rejectWithValue(
+                error.response?.data || {
+                    message: error.message || `Failed to add ${modelName}`,
+                }
+            );
+        }
     }
-  },
 );
 
-// ** Update Record
+// ==========================================
+// UPDATE RECORD
+// ==========================================
+
 export const updateRecord = createAsyncThunk(
-  `${modelName}s/update${modelName}`,
-  async (data, { getState, dispatch, rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.put(`${pathName}/${data.id}`, data);
-      dispatch(fetchRecords(getState().centers?.params));
-      return response.data;
-    } catch (error) {
-      handleError(error);
+    `${modelName}s/update${modelName}`,
+    async (data, { getState, dispatch, rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.put(
+                `${pathName}/${data.id}`,
+                data
+            );
+
+            dispatch(fetchRecords(getState().centers?.params));
+
+            return response.data;
+        } catch (error) {
+            handleError(error);
+
+            return rejectWithValue(
+                error.response?.data || {
+                    message: error.message || `Failed to update ${modelName}`,
+                }
+            );
+        }
     }
-  },
 );
 
-// ** Delete Record
+// ==========================================
+// DELETE RECORD
+// ==========================================
+
 export const deleteRecord = createAsyncThunk(
-  `${modelName}s/delete${modelName}`,
-  async (id, { getState, dispatch }) => {
-    try {
-      await axiosInstance.delete(`${pathName}/${id}`);
-      dispatch(fetchRecords(getState().centers?.params));
-      return id;
-    } catch (error) {
-      handleError(error, 500);
+    `${modelName}s/delete${modelName}`,
+    async (id, { getState, dispatch, rejectWithValue }) => {
+        try {
+            await axiosInstance.delete(`${pathName}/${id}`);
+
+            dispatch(fetchRecords(getState().centers?.params));
+
+            return id;
+        } catch (error) {
+            handleError(error, 500);
+
+            return rejectWithValue(
+                error.response?.data || {
+                    message: error.message || `Failed to delete ${modelName}`,
+                }
+            );
+        }
     }
-  },
 );
 
-// ** role id wise Role data
+// ==========================================
+// FETCH AVAILABLE STAFF FOR EACH SERVICE
+// ==========================================
+
+export const fetchAvailableStaff = createAsyncThunk(
+    `${modelName}s/fetchAvailableStaff`,
+    async (
+        { serviceId, date, start_time },
+        { rejectWithValue }
+    ) => {
+        try {
+            const response = await axiosInstance.post("available-staff", {
+                service_id: serviceId,
+                date,
+                start_time,
+            });
+
+            return {
+                serviceId,
+                data: response.data.data ?? [],
+            };
+        } catch (error) {
+            console.error(
+                "Fetch available staff error:",
+                error.response?.data || error
+            );
+
+            return rejectWithValue({
+                serviceId,
+                message:
+                    error.response?.data?.message ||
+                    "Failed to fetch available staff",
+            });
+        }
+    }
+);
+
+// ==========================================
+// ROLE ID WISE ROLE DATA
+// ==========================================
+
 export const IdWiseRoleData = createAsyncThunk(
-  "roles/getRoleData",
-  async (roleId) => {
-    try {
-      const response = await axiosInstance.get(pathName + `/${roleId}`);
-      return response.data.data;
-    } catch (error) {
-      // Check if error is rejected with value
-      if (error.response && error.response.status === 422) {
-        // Extract error message and errors from response data
-        const { message, errors } = error.response.data;
+    "roles/getRoleData",
+    async (roleId, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.get(
+                pathName + `/${roleId}`
+            );
 
-        // Construct error object with message and errors
-        const errorObj = { message, errors };
+            return response.data.data;
+        } catch (error) {
+            if (error.response?.status === 422) {
+                const { message, errors } = error.response.data;
 
-        // Reject the promise with the error object
-        return rejectWithValue(errorObj);
-      } else {
-        // If there's an error other than 422, reject the promise with the error message
-        return rejectWithValue(error.message || "An error occurred");
-      }
+                return rejectWithValue({ message, errors });
+            }
+
+            return rejectWithValue(
+                error.message || "An error occurred"
+            );
+        }
     }
-  },
 );
+
+// ==========================================
+// INITIAL STATE
+// ==========================================
 
 const initialState = {
-  data: [], // Array to store data
-  message: "", // Message from API response
-  nextPageUrl: null,
-  prevPageUrl: null,
-  total: 0,
-  loading: false,
+    data: [],
+
+    // Staff grouped by service ID
+    availableStaff: {},
+
+    // Loading status grouped by service ID
+    availableStaffLoadingByService: {},
+
+    selectedRecord: null,
+    message: "",
+    nextPageUrl: null,
+    prevPageUrl: null,
+    total: 0,
+    loading: false,
 };
+
+// ==========================================
+// EXTRA REDUCERS
+// ==========================================
 
 const extraReducers = (builder) => {
-  // *** FETCH CASES
-  // API fetching state
-  builder.addCase(fetchRecords.pending, (state) => {
-    state.loading = true; // Set loading true to show loading screen
-  });
 
-  // API response received state (SUCCESS)
-  builder.addCase(fetchRecords.fulfilled, (state, action) => {
-    // Assuming action.payload is the response from the API
-    saveToRedux(state, action.payload); // Saving records to redux
-    state.loading = false; // Set loading false to hide loading screen
-  });
+    // --------------------------------------
+    // FETCH RECORDS
+    // --------------------------------------
 
-  // API response received state (FAILURE)
-  builder.addCase(fetchRecords.rejected, (state, action) => {
-    state.message = action.payload?.message || `Failed to fetch ${modelName}s!`;
-    state.loading = false; // Set loading false to hide loading screen
-  });
+    builder.addCase(fetchRecords.pending, (state) => {
+        state.loading = true;
+    });
 
-    // *** FETCH  by id CASES
-  builder.addCase(fetchRecordById.pending, (state) => {
-    state.loading = true;
-    state.message = "";
-  });
+    builder.addCase(fetchRecords.fulfilled, (state, action) => {
+        saveToRedux(state, action.payload);
+        state.loading = false;
+    });
 
-  builder.addCase(fetchRecordById.fulfilled, (state, action) => {
-    state.loading = false;
-    state.selectedRecord = action.payload.data;
-  });
+    builder.addCase(fetchRecords.rejected, (state, action) => {
+        state.message =
+            action.payload?.message || `Failed to fetch ${modelName}s!`;
 
-  builder.addCase(fetchRecordById.rejected, (state, action) => {
-    state.loading = false;
+        state.loading = false;
+    });
 
-    state.message =
-      action.payload?.message || `Failed to fetch ${modelName} by ID!`;
-  });
+    // --------------------------------------
+    // FETCH RECORD BY ID
+    // --------------------------------------
 
-  // *** ADD CASES
-  // API fetching state
-  builder.addCase(addRecord.pending, (state) => {
-    state.loading = true; // Set loading true to show loading screen
-  });
+    builder.addCase(fetchRecordById.pending, (state) => {
+        state.loading = true;
+        state.message = "";
+    });
 
-  // API response received state (SUCCESS)
-  builder.addCase(addRecord.fulfilled, (state, action) => {
-    console.log("action.payload", action.payload);
-    // Assuming action.payload is the response from the API
-    saveToRedux(state, action.payload); // Saving Referral Points to redux
-    state.loading = false; // Set loading false to hide loading screen
-  });
+    builder.addCase(fetchRecordById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedRecord = action.payload.data;
+    });
 
-  // API response received state (FAILURE)
-  builder.addCase(addRecord.rejected, (state, action) => {
-    state.message = action.payload?.message || `Failed to add ${modelName}!`;
-    state.loading = false; // Set loading false to hide loading screen
-  });
+    builder.addCase(fetchRecordById.rejected, (state, action) => {
+        state.loading = false;
 
-  // *** UPDATE CASES
-  // API fetching state
-  builder.addCase(updateRecord.pending, (state) => {
-    state.loading = true; // Set loading true to show loading screen
-  });
+        state.message =
+            action.payload?.message ||
+            `Failed to fetch ${modelName} by ID!`;
+    });
 
-  // API response received state (SUCCESS)
-  builder.addCase(updateRecord.fulfilled, (state, action) => {
-    // Assuming action.payload is the response from the API
-    saveToRedux(state, action.payload); // Saving Referral Points to redux
-    state.loading = false; // Set loading false to hide loading screen
-  });
+    // --------------------------------------
+    // ADD RECORD
+    // --------------------------------------
 
-  // API response received state (FAILURE)
-  builder.addCase(updateRecord.rejected, (state, action) => {
-    state.message = action.payload?.message || `Failed to update ${modelName}!`;
-    state.loading = false; // Set loading false to hide loading screen
-  });
+    builder.addCase(addRecord.pending, (state) => {
+        state.loading = true;
+    });
 
-  // *** DELETE CASES
-  // API fetching state
-  builder.addCase(deleteRecord.pending, (state) => {
-    state.loading = true; // Set loading true to show loading screen
-  });
+    builder.addCase(addRecord.fulfilled, (state, action) => {
+        saveToRedux(state, action.payload);
+        state.loading = false;
+    });
 
-  // API response received state (SUCCESS)
-  builder.addCase(deleteRecord.fulfilled, (state, action) => {
-    // Assuming action.payload is the response from the API
-    state.loading = false; // Set loading false to hide loading screen
-    state.roles = state.centers?.filter((data) => data.id !== action.payload);
-  });
+    builder.addCase(addRecord.rejected, (state, action) => {
+        state.message =
+            action.payload?.message || `Failed to add ${modelName}!`;
 
-  // API response received state (FAILURE)
-  builder.addCase(deleteRecord.rejected, (state, action) => {
-    state.message = action.payload?.message || `Failed to delete ${modelName}!`;
-    state.loading = false; // Set loading false to hide loading screen
-  });
+        state.loading = false;
+    });
+
+    // --------------------------------------
+    // UPDATE RECORD
+    // --------------------------------------
+
+    builder.addCase(updateRecord.pending, (state) => {
+        state.loading = true;
+    });
+
+    builder.addCase(updateRecord.fulfilled, (state, action) => {
+        saveToRedux(state, action.payload);
+        state.loading = false;
+    });
+
+    builder.addCase(updateRecord.rejected, (state, action) => {
+        state.message =
+            action.payload?.message || `Failed to update ${modelName}!`;
+
+        state.loading = false;
+    });
+
+    // --------------------------------------
+    // DELETE RECORD
+    // --------------------------------------
+
+    builder.addCase(deleteRecord.pending, (state) => {
+        state.loading = true;
+    });
+
+    builder.addCase(deleteRecord.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = state.data.filter(
+            (item) => item.id !== action.payload
+        );
+    });
+
+    builder.addCase(deleteRecord.rejected, (state, action) => {
+        state.message =
+            action.payload?.message || `Failed to delete ${modelName}!`;
+
+        state.loading = false;
+    });
+
+    // --------------------------------------
+    // FETCH AVAILABLE STAFF
+    // --------------------------------------
+
+    builder.addCase(fetchAvailableStaff.pending, (state, action) => {
+        const serviceId = action.meta.arg.serviceId;
+
+        state.availableStaffLoadingByService[serviceId] = true;
+    });
+
+    builder.addCase(fetchAvailableStaff.fulfilled, (state, action) => {
+        const { serviceId, data } = action.payload;
+
+        // Store staff for the particular service
+        state.availableStaff[serviceId] = Array.isArray(data)
+            ? data
+            : [];
+
+        state.availableStaffLoadingByService[serviceId] = false;
+    });
+
+    builder.addCase(fetchAvailableStaff.rejected, (state, action) => {
+        const serviceId =
+            action.payload?.serviceId ?? action.meta.arg.serviceId;
+
+        state.availableStaffLoadingByService[serviceId] = false;
+
+        state.message =
+            action.payload?.message || "Failed to fetch available staff";
+    });
 };
 
+// ==========================================
+// CREATE SLICE
+// ==========================================
+
 export const dataSlice = createDataSlice(
-  tableName,
-  extraReducers,
-  initialState,
+    tableName,
+    extraReducers,
+    initialState
 );
+
 export default dataSlice.reducer;
